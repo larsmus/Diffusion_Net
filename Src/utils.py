@@ -1,4 +1,6 @@
 import numpy as np
+from keras.datasets import mnist
+from keras.utils import to_categorical
 
 
 
@@ -35,3 +37,15 @@ def preprocess_data(x_train, x_test):
     x_train = x_train.reshape(x_train.shape[0], x_train.shape[1]*x_train.shape[2])
     x_test = x_test.reshape(x_test.shape[0], x_test.shape[1]*x_test.shape[2])
     return x_train, x_test
+
+
+def load_and_prepare_mnist_data(n_train, n_test):
+    (x_train_full, y_train_full), (x_test_full, y_test_full) = mnist.load_data()
+    (x_train, y_train),(x_test, y_test) = subsample_data(x_train_full, y_train_full, x_test_full, y_test_full,
+                                                           n_train, n_test)
+    x_train, x_test = preprocess_data(x_train, x_test)
+    y_train = to_categorical(y_train, len(np.unique(y_train)))
+    y_test = to_categorical(y_test, len(np.unique(y_test)))
+    return (x_train, y_train),(x_test, y_test)
+
+

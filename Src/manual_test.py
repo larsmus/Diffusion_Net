@@ -1,42 +1,24 @@
 import numpy as np
-import metrics as metrics
-import Diffusion as df
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import plotting as plotting
-from sklearn.utils import shuffle
-import random
-random.seed(123)
-
-sigma_m = 2
-sigma_v = 1.5
-N = 100
-num_classes = 2
-centers = [np.random.normal(np.zeros(6), sigma_m**2, size=6) for i in range(num_classes)]
-classes = np.array([np.array([np.random.normal(center, sigma_v**2) for i in range(N)]) for center in centers])
-x_train = np.concatenate((classes[0], classes[1]))
-y_train = np.concatenate((np.ones(N, dtype="int"), np.zeros(N, dtype="int")))
-x_train, y_train = shuffle(x_train, y_train, random_state=0)
+from Src.utils import load_and_prepare_mnist_data
+from Src.Diffusion import diffusion_map
+import time
+import os
 
 
-sigmas = np.linspace(0.1, 100, 100)
-met = {"geometric": [], "spectral": [], "probabilistic": []}
-for sigma in sigmas:
-    embed, _, eig = df.diffusion_map(x_train, k=10, dim=2, sigma=np.sqrt(sigma))
-    met["geometric"].append(metrics.geometric(embed, y_train))
-    met["spectral"].append(metrics.spectral(x_train, y_train, sigma=sigma))
-    met["probabilistic"].append(metrics.probabilistic(eig, y_train))
+(x_train, y_train),(x_test, y_test) = load_and_prepare_mnist_data(n_train=5000, n_test=500)
+time = str(int(time.time()))
 
-fig, ax = plt.subplots()
-ax.plot(sigmas, met["geometric"], label="Geometric")
-ax.plot(sigmas, met["spectral"], label="Spectral")
-ax.plot(sigmas, met["probabilistic"], label="Probabilistic")
-ax.legend()
-plt.show()
+os.makedirs(f"../Data/experiment_{time}")
+embed_train, eig_train = diffusion_map(x_train, k=9, dim=784, sigma=0)
+np.save(f"../Data/embed_train_{time}", embed_train)
+np.save(f"../Data/eig_{time}", eig_train, allow_pickle=True)
+np.save(f"../Data/x_train{time}", x_train)
+np.save(f"../Data/y_train{time}", y_train)
 
-classes = np.unique(y_train)
-global_center_mass = np.mean(embed, axis=0)
-class_center_mass = [np.mean(embed[y_train==i], axis=0) for i in classes]
-print(global_center_mass)
-print(class_center_mass)
-plotting.plot_embedding_space(embed, y_train)
+print(f"Done with {str(time)}")
+
+
+
+
+
+
