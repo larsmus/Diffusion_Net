@@ -1,6 +1,7 @@
 import numpy as np
 
 
+
 def get_embedding_mse(embed_1, embed_2):
     embed_rotated = get_rotated_embedding(embed_1, embed_2)
     return np.mean(np.linalg.norm(embed_1 - embed_rotated, ord=2, axis=1)**2)
@@ -16,3 +17,21 @@ def get_rotated_embedding(embed_1, embed_2):
     u, _, v = np.linalg.svd(S)
     R = v.T @ u.T
     return (R @ embed_2.T).T
+
+
+def subsample_data(x_train, y_train, x_test, y_test, num_train, num_test=0):
+    train_idx = np.random.choice(x_train.shape[0], num_train, replace=False)
+    test_idx = np.random.choice(x_test.shape[0], num_test, replace=False)
+    x_train = x_train[train_idx,:,:]
+    y_train = y_train[train_idx]
+    x_test = x_test[test_idx,:,:]
+    y_test = y_test[test_idx]
+    return (x_train, y_train), (x_test, y_test)
+
+
+def preprocess_data(x_train, x_test):
+    x_train = x_train.astype("float")/255.0
+    x_test = x_test.astype("float")/255.0
+    x_train = x_train.reshape(x_train.shape[0], x_train.shape[1]*x_train.shape[2])
+    x_test = x_test.reshape(x_test.shape[0], x_test.shape[1]*x_test.shape[2])
+    return x_train, x_test
