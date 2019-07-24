@@ -2,7 +2,6 @@ import numpy as np
 from Src.utils import load_and_prepare_mnist_data
 from Src.Diffusion import diffusion_map
 import time
-import json
 import os
 
 parameters = {"k": 9, "n_train": 5000, "n_test": 500, "sigma": 0}

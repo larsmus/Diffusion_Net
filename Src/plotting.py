@@ -80,3 +80,27 @@ def plot_distance_ratio_min(eig, ax=None, label=None, show=True):
     ax.plot(np.linspace(0, 1, len(vals)), distances_min, label=label)
     if show:
         plt.show()
+
+
+def plot_reconstructed_digits(original, reconstructed, embedding_sizes=None, ncol=10, save=False):
+    nrow = len(reconstructed) + 1
+    fig, axes = plt.subplots(ncols=ncol, nrows=nrow, figsize=(2 * ncol, 2 * nrow))
+    data = [original] + reconstructed
+
+    for i in range(nrow):
+        for j in range(ncol):
+            # ax = plt.subplot(nrow, ncol, i+1+j*ncol)
+            axes[i, j].imshow(data[i][j].reshape((28, 28)))
+            plt.gray()
+            axes[i, j].get_xaxis().set_visible(False)
+            axes[i, j].get_yaxis().set_ticks([])
+
+    if embedding_sizes is not None:
+        rownames = ["Original"] + [f"m = {size}" for size in embedding_sizes]
+        for ax, row in zip(axes[:, 0], rownames):
+            ax.set_ylabel(row, rotation=90, size='large')
+
+    fig.suptitle("Diffusion Net Reconstruction of MNIST", fontsize=20)
+    if save:
+        plt.savefig(f"./Pics/mnist_comparison{int(time.time())}.png")
+    plt.show()

@@ -1,24 +1,39 @@
 import numpy as np
-from Src.utils import load_and_prepare_mnist_data
-from Src.Diffusion import diffusion_map
-import time
-import os
+from Src.encoder_decoder import Encoder, Decoder
+from Src.plotting import plot_reconstructed_digits
 
+experiment = "1563885350"
 
-(x_train, y_train),(x_test, y_test) = load_and_prepare_mnist_data(n_train=5000, n_test=500)
-time = str(int(time.time()))
+# load and prepare data
+embed = np.load(f"../Data/experiment_{experiment}/embed_train.npy")
+x_train = np.load(f"../Data/experiment_{experiment}/x_train.npy")
+y_train = np.load(f"../Data/experiment_{experiment}/y_train.npy")
+eig = np.load(f"../Data/experiment_{experiment}/eig.npy", allow_pickle=True)
 
-os.makedirs(f"../Data/experiment_{time}")
-embed_train, eig_train = diffusion_map(x_train, k=9, dim=784, sigma=0)
-np.save(f"../Data/embed_train_{time}", embed_train)
-np.save(f"../Data/eig_{time}", eig_train, allow_pickle=True)
-np.save(f"../Data/x_train{time}", x_train)
-np.save(f"../Data/y_train{time}", y_train)
+embedding_size = 32
+input_size = 784
+train_embed = embed[:, :embedding_size]
 
-print(f"Done with {str(time)}")
+# train the encoder
+encoded_subsample = Encoder(reg=0., embedding_size=embedding_size)
+encoded_subsample.compile(loss="mean_squared_error", optimizer="adam")
+encoded_subsample.train(x_train, train_embed, batch_size=128, epochs=15)
 
+print("------------------------")
+print("Done encoding")
+print("------------------------")
 
+predicted_embed_train = encoded_subsample.model.predict(x_train)
 
+# train encoder
+decoded_subsample = Decoder(reg=0.)
+decoded_subsample.compile(loss="mean_squared_error", optimizer="adam")
+decoded_subsample.train(predicted_embed_train, x_train, batch_size=128, epochs=15)
 
+print("------------------------")
+print("Done decoding")
+print("------------------------")
 
+reconstruct_subsample = decoded_subsample.model.predict(predicted_embed_train)
 
+plot_reconstructed_digits(x_train, reconstruct_subsample)

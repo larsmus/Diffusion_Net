@@ -40,7 +40,7 @@ class Encoder:
 
 
 class Decoder:
-    def __init__(self, input_size, reg=0.):
+    def __init__(self, input_size=784, reg=0.,):
         model = Sequential()
         # model.add(Flatten(input_shape=input_shape))
         model.add(Dense(128, activation='relu', kernel_regularizer=regularizers.l2(reg)))
