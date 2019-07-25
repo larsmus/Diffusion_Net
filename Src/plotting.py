@@ -1,4 +1,5 @@
 import numpy as np
+import time
 import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 from plotly.offline import init_notebook_mode, iplot
@@ -102,5 +103,5 @@ def plot_reconstructed_digits(original, reconstructed, embedding_sizes=None, nco
 
     fig.suptitle("Diffusion Net Reconstruction of MNIST", fontsize=20)
     if save:
-        plt.savefig(f"./Pics/mnist_comparison{int(time.time())}.png")
+        plt.savefig(f"../Pics/mnist_comparison{int(time.time())}.png")
     plt.show()
