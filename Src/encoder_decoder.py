@@ -2,6 +2,7 @@ from keras.layers import Dense, Input, Flatten, Lambda
 from keras.models import Model, Sequential
 from keras import regularizers
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class Encoder:
